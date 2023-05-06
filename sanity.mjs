@@ -4,7 +4,7 @@ import groq from "groq";
 
 dotenv.config();
 
-const client = createClient({
+export const client = createClient({
     name: "default",
     title: "shop",
     projectId: process.env.SANITY_PROJECT_ID,

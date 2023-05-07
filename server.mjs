@@ -73,8 +73,7 @@ app.post("/checkout", async (request, response) => {
             quantity: currentItem.quantity,
         };
     });
-    // TESTING
-    cart = lineItems;
+
     // =======================================
 
     try {
@@ -82,7 +81,8 @@ app.post("/checkout", async (request, response) => {
             payment_method_types: ["card"],
             mode: "payment",
             line_items: lineItems,
-            success_url: `${process.env.CLIENT_URL}/about`,
+            // success_url: `${process.env.CLIENT_URL}/about`,
+            success_url: `${process.env.CLIENT_URL}`,
             cancel_url: `${process.env.CLIENT_URL}`,
         });
         response.json({ url: session.url });

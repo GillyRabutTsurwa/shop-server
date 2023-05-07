@@ -7,22 +7,33 @@ import dotenv from "dotenv";
 import Stripe from "stripe";
 
 const app = express();
-const PORT = 4242;
+const PORT = process.env.PORT || 4242;
 const builder = imageUrlBuilder(client); // NOTE: using client earlier than expected
 
 function urlFor(source) {
     return builder.image(source);
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+
+const clientProdUrl = process.env.CLIENT_PROD_URL;
+const clientDevUrl = process.env.CLIENT_DEV_URL;
+const CLIENT_URL = isProduction ? clientProdUrl : clientDevUrl;
+
 app.use(express.json());
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: CLIENT_URL,
     })
 );
 dotenv.config();
 
-const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY);
+const stripeProdKey = process.env.STRIPE_PRIVATE_PROD_KEY;
+const stripeDevKey = process.env.STRIPE_PRIVATE_TEST_KEY;
+
+const STRIPE_KEY = isProduction ? stripeProdKey : stripeDevKey;
+
+const stripe = new Stripe(STRIPE_KEY);
 
 const products = await fetchProducts();
 // console.log(products);
@@ -30,8 +41,6 @@ const products = await fetchProducts();
 app.get("/products", (req, res) => {
     res.send(products);
 });
-
-let cart;
 
 app.post("/checkout", async (request, response) => {
     // removing this stripe code session below and making it its own variable
@@ -85,8 +94,6 @@ app.post("/checkout", async (request, response) => {
         console.log(err);
     }
 });
-
-console.log(cart);
 
 //NOTE: make our application work
 app.listen(PORT, () => {
